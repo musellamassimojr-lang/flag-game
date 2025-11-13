@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gioco Bandiere Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #bfdbfe, #e5e7eb);
+    }
+
+    .app {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.22);
+      padding: 22px 20px 18px;
+      max-width: 900px;
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    h1 {
+      margin: 0 0 4px 0;
+      font-size: 1.7rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    h1 span.logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fed7aa, #f97316);
+      color: white;
+      font-size: 1.1rem;
+    }
+
+    .subtitle {
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mode-row {
+      display: inline-flex;
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: 4px;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .mode-row-label {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-right: 4px;
+      padding-left: 6px;
+    }
+
+    .mode-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: #4b5563;
+      transition: background 0.15s, color 0.15s, transform 0.08s;
+    }
+
+    .mode-pill input {
+      display: none;
+    }
+
+    .mode-pill.active {
+      background: #111827;
+      color: #f9fafb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(15,23,42,0.25);
+    }
+
+    .mode-pill span.badge-pill {
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(249,250,251,0.24);
+    }
+
+    .right-top {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .small-select-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 0.8rem;
+    }
+
+    .small-select-label {
+      color: #6b7280;
+    }
+
+    select {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 0.85rem;
+      background: white;
+      min-width: 160px;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px 9px;
+      background: linear-gradient(to bottom right, #f9fafb, #f1f5f9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 0 0, rgba(59,130,246,0.06), transparent),
+                  radial-gradient(circle at 100% 100%, rgba(16,185,129,0.06), transparent);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .card-title small {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #9ca3af;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+      background: white;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: #6b7280;
+      min-height: 1.2em;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #111827;
+      color: white;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.09s ease, box-shadow 0.09s ease, background 0.15s;
+    }
+
+    button span.btn-icon {
+      font-size: 0.9rem;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(15,23,42,0.25);
+      background: #020617;
+    }
+
+    button.secondary {
+      background: white;
+      border: 1px solid #d1d5db;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background: #f9fafb;
+      box-shadow: 0 4px 10px rgba(148,163,184,0.25);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .game-container {
+      margin-top: 6px;
+      border-radius: 18px;
+      border: 1px solid #e5e7eb;
+      padding: 14px;
+      background: linear-gradient(to bottom, #f9fafb, #eef2ff);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-container::before {
+      content: "";
+      position: absolute;
+      inset: -50%;
+      background: radial-gradient(circle at 10% 0, rgba(59,130,246,0.10), transparent 50%),
+                  radial-gradient(circle at 90% 100%, rgba(236,72,153,0.10), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .game-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .header-left strong {
+      font-weight: 600;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: rgba(239,246,255,0.95);
+      color: #1d4ed8;
+      font-weight: 600;
+      border: 1px solid rgba(59,130,246,0.2);
+    }
+
+    .badge-timer {
+      margin-left: 6px;
+      padding-inline: 8px;
+      border-radius: 999px;
+      background: rgba(251,191,36,0.12);
+      border: 1px solid rgba(251,191,36,0.35);
+      font-size: 0.75rem;
+      color: #92400e;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-timer span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #f97316;
+      box-shadow: 0 0 0 3px rgba(249,115,22,0.3);
+    }
+
+    .scores {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .score-card {
+      flex: 1;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(229,231,235,0.85);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      border: 1px solid rgba(148,163,184,0.4);
+    }
+
+    .score-card.active {
+      background: #dbeafe;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.5);
+    }
+
+    .score-name {
+      font-weight: 600;
+    }
+
+    .score-note {
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+
+    .score-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .battle-status {
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(15,23,42,0.03);
+      border: 1px dashed rgba(148,163,184,0.7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .battle-status span.label {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .battle-status span.value {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .battle-status small {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .battle-players-list {
+      margin-bottom: 8px;
+      max-height: 140px;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(209,213,219,0.8);
+      padding: 6px 8px;
+      font-size: 0.8rem;
+    }
+
+    .battle-player {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 4px;
+      border-radius: 8px;
+      margin-bottom: 2px;
+    }
+
+    .battle-player.me {
+      background: rgba(129,140,248,0.08);
+      border: 1px solid rgba(129,140,248,0.5);
+    }
+
+    .battle-player.alive {
+      color: #14532d;
+    }
+
+    .battle-player.dead {
+      color: #6b7280;
+      opacity: 0.85;
+    }
+
+    .battle-player-name {
+      font-weight: 600;
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .battle-player-score {
+      font-weight: 600;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .battle-player-status {
+      font-size: 0.7rem;
+      margin-left: 6px;
+    }
+
+    .flag-card {
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 8px;
+      box-shadow: 0 6px 12px rgba(148,163,184,0.25);
+    }
+
+    .flag-card h2 {
+      margin: 0 0 6px 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #374151;
+      text-align: center;
+    }
+
+    .flag-wrapper {
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 3 / 2;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .flag-wrapper img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+
+    .option-btn {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s, border 0.15s;
+      text-align: center;
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+      background: #f9fafb;
+    }
+
+    .option-btn.correct {
+      background: #bbf7d0;
+      border-color: #16a34a;
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.5);
+    }
+
+    .option-btn.wrong {
+      background: #fecaca;
+      border-color: #dc2626;
+      box-shadow: 0 0 0 1px rgba(248,113,113,0.5);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+      opacity: 0.85;
+      transform: none;
+    }
+
+    .game-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #4b5563;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .message {
+      min-height: 1.2em;
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        border-radius: 0;
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1 id="appTitle">
+      <span class="logo">🌍</span>
+      <span>Gioco delle Bandiere</span>
+    </h1>
+    <div class="subtitle" id="subtitleText">
+      Modalità <strong>1 vs 1 online</strong> e <strong>Battle Royale</strong> con stanze private o pubbliche.
+    </div>
+
+    <div class="top-bar">
+      <div class="mode-row" id="modeRow">
+        <span class="mode-row-label" id="modeLabelTitle">Modalità:</span>
+        <label class="mode-pill active" data-mode="duel">
+          <input type="radio" name="mode" value="duel" checked />
+          <span id="modeLabelDuel">1 vs 1</span>
+          <span class="badge-pill">vs</span>
+        </label>
+        <label class="mode-pill" data-mode="battle">
+          <input type="radio" name="mode" value="battle" />
+          <span id="modeLabelBattle">Battle Royale privata</span>
+          <span class="badge-pill">🔥</span>
+        </label>
+      </div>
+
+      <div class="right-top">
+        <div class="small-select-group">
+          <span class="small-select-label" id="languageCardTitle">Lingua</span>
+          <select id="languageSelect">
+            <option value="it">Italiano</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="pt">Português</option>
+            <option value="zh">中文</option>
+            <option value="ar">العربية</option>
+            <option value="hi">हिन्दी</option>
+            <option value="ru">Русский</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-row">
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">
+            <span id="createCardTitle">1. Crea stanza</span>
+            <small id="createCardHint">Condividi il codice</small>
+          </div>
+          <div class="row">
+            <button id="createRoomBtn">
+              <span class="btn-icon">➕</span>
+              <span id="createBtnText">Crea stanza</span>
+            </button>
+            <span id="roomCodeLabel" style="font-size:0.9rem; font-weight:600;"></span>
+          </div>
+          <div class="status" id="createStatus"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">
+            <span id="joinCardTitle">2. Entra in stanza</span>
+          </div>
+          <div class="row">
+            <input type="text" id="joinCodeInput" placeholder="Codice stanza (es. 4821)" />
+            <button id="joinRoomBtn" class="secondary">
+              <span class="btn-icon">➡️</span>
+              <span id="joinBtnText">Entra</span>
+            </button>
+          </div>
+          <div class="status" id="joinStatus"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">
+            <span id="publicBattleTitle">Battle Royale pubblica</span>
+            <small id="publicBattleHint">Ti unisci automaticamente</small>
+          </div>
+          <div class="row">
+            <button id="publicBattleBtn" class="secondary">
+              <span class="btn-icon">🌐</span>
+              <span id="publicBattleBtnText">Gioca subito</span>
+            </button>
+          </div>
+          <div class="status" id="publicBattleStatus"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-title">
+            <span id="playerNameCardTitle">Nome giocatore</span>
+            <small id="playerNameCardHint">Visibile in Battle Royale</small>
+          </div>
+          <div class="row">
+            <input type="text" id="playerNameInput" placeholder="Il tuo nome (opzionale)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-container" id="gameContainer" style="display:none;">
+      <div class="game-inner">
+        <div class="header">
+          <div class="header-left">
+            <span id="playerTextLabel">Giocatore:</span>
+            <strong id="playerLabel"></strong>
+            <span>•</span>
+            <span id="roomTextLabel">Stanza:</span>
+            <strong id="roomCodeDisplay"></strong>
+          </div>
+          <div>
+            <span class="badge" id="turnBadge">Turno: -</span>
+            <span class="badge-timer" id="timerBadge" style="display:none;">
+              <span class="dot"></span>
+              <span id="timerText">10s</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="scores" id="scoresDuel">
+          <div class="score-card" id="scoreP1">
+            <div>
+              <span class="score-name" id="scoreName1">Giocatore 1</span><br/>
+              <span class="score-note" id="scoreNote1"></span>
+            </div>
+            <span class="score-value" id="score1">0</span>
+          </div>
+          <div class="score-card" id="scoreP2">
+            <div>
+              <span class="score-name" id="scoreName2">Giocatore 2</span><br/>
+              <span class="score-note" id="scoreNote2"></span>
+            </div>
+            <span class="score-value" id="score2">0</span>
+          </div>
+        </div>
+
+        <div class="battle-status" id="battleStatus" style="display:none;">
+          <div>
+            <span class="label" id="battlePlayersLabel">Giocatori vivi:</span>
+            <span class="value" id="battlePlayersValue">0 / 0</span>
+          </div>
+          <div>
+            <small id="battleExtra"></small>
+          </div>
+        </div>
+
+        <div class="battle-players-list" id="battlePlayersList" style="display:none;"></div>
+
+        <div class="flag-card">
+          <h2 id="questionTitle">In attesa dell'altro giocatore...</h2>
+          <div class="flag-wrapper">
+            <img id="flagImg" src="" alt="Bandiera" />
+          </div>
+          <div class="options" id="optionsContainer"></div>
+        </div>
+
+        <div class="game-footer">
+          <div class="message" id="gameMessage"></div>
+          <button id="leaveBtn" class="secondary">
+            <span class="btn-icon">⏏</span>
+            <span id="leaveBtnText">Esci dalla stanza</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script>
+    // === Firebase ===
+    const firebaseConfig = {
+      apiKey: "AIzaSyCS2yJAOJvjzgRjwfy8KkWLFN_Yc9nJRpE",
+      authDomain: "flags-game-1-vs-1.firebaseapp.com",
+      databaseURL: "https://flags-game-1-vs-1-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "flags-game-1-vs-1",
+      storageBucket: "flags-game-1-vs-1.firebasestorage.app",
+      messagingSenderId: "35708843440",
+      appId: "1:35708843440:web:08c2953678946dbc8f5275",
+      measurementId: "G-21MV1D94MD"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // === I18N UI ===
+    const translations = {
+      it: {
+        title: "Gioco delle Bandiere",
+        subtitle: "Modalità <strong>1 vs 1 online</strong> e <strong>Battle Royale</strong> con stanze private o pubbliche.",
+        modeTitle: "Modalità:",
+        modeDuel: "1 vs 1",
+        modeBattle: "Battle Royale privata",
+        languageCardTitle: "Lingua",
+        createCardTitle: "1. Crea stanza",
+        createCardHint: "Condividi il codice",
+        joinCardTitle: "2. Entra in stanza",
+        playerNameCardTitle: "Nome giocatore",
+        playerNameCardHint: "Visibile in Battle Royale",
+        playerNamePlaceholder: "Il tuo nome (opzionale)",
+        publicBattleTitle: "Battle Royale pubblica",
+        publicBattleHint: "Ti unisci automaticamente",
+        publicBattleBtn: "Gioca subito",
+        createBtn: "Crea stanza",
+        joinBtn: "Entra",
+        joinPlaceholder: "Codice stanza (es. 4821)",
+        leaveBtn: "Esci dalla stanza",
+        playerText: "Giocatore:",
+        roomText: "Stanza:",
+        scorePlayer1: "Giocatore 1",
+        scorePlayer2: "Giocatore 2",
+        scoreNote1: "Creatore stanza",
+        scoreNote2: "Sfida",
+        turnLabel: "Turno: Giocatore {n}",
+        badgeBattle: "Battle Royale",
+        badgeFinished: "Partita finita",
+        timerLabel: "{s}s rimanenti",
+        waitingOtherPlayer: "In attesa dell'altro giocatore...",
+        waitingBothPlayers: "In attesa che entrambi i giocatori entrino...",
+        waitingStart: "In attesa di iniziare...",
+        waitingPlayersBattle: "In attesa dei giocatori per la Battle Royale...",
+        waitingStartBattle: "La Battle Royale sta per iniziare...",
+        statusCreatingRoom: "Creo stanza...",
+        statusCreateSuccessDuel: "Stanza creata! Aspetta che entri il Giocatore 2.",
+        statusCreateSuccessBattle: "Stanza Battle Royale creata! Attendi il countdown iniziale.",
+        statusCreateError: "Errore nella creazione stanza.",
+        statusJoinNeedCode: "Inserisci un codice stanza.",
+        statusJoinSearching: "Cerco stanza...",
+        statusJoinNotFound: "Stanza non trovata.",
+        statusJoinFull: "La stanza è già piena.",
+        statusJoinFinished: "Questa partita è già finita.",
+        statusJoinSuccess: "Sei entrato nella stanza!",
+        statusJoinError: "Errore nell'ingresso in stanza.",
+        roomClosed: "La stanza è stata chiusa.",
+        question: "Di quale paese è questa bandiera?",
+        questionBattle: "Indovina la bandiera: hai 10 secondi!",
+        msgTurnOtherPlayer: "Turno dell'altro giocatore.",
+        msgCorrect: "Giusto! 🎉",
+        msgWrong: "Sbagliato! Era: ",
+        msgCorrectBattle: "Giusto! Rimani in gioco. 🎉",
+        msgWrongBattle: "Sbagliato o fuori tempo! Sei eliminato.",
+        leftRoom: "Sei uscito dalla stanza.",
+        battleStatusLabel: "Giocatori vivi:",
+        battleStatus: "Giocatori vivi: {alive} / {total}",
+        battleWinner: "Vince {name}!",
+        battleNoWinner: "Nessun vincitore.",
+        youWin: "Hai vinto la Battle Royale! 🏆",
+        youLose: "Sei stato eliminato dalla Battle Royale.",
+        youEliminated: "Sei stato eliminato. Puoi guardare il resto della partita.",
+        statusPublicSearching: "Cerco stanza pubblica...",
+        statusPublicFull: "La stanza pubblica è piena, riprova tra poco.",
+        statusPublicInProgress: "Una partita pubblica è già in corso, riprova tra poco.",
+        statusPublicJoined: "Sei entrato nella Battle Royale pubblica!",
+        statusPublicError: "Errore nella Battle Royale pubblica.",
+        labelAlive: "vivo",
+        labelDead: "eliminato",
+        lobbyCountdown: "Countdown iniziale: {s}s",
+        playerUnknown: "-",
+        playerLabelBase: "Giocatore"
+      },
+      en: {
+        title: "Flag Game",
+        subtitle: "Online <strong>1 vs 1</strong> and <strong>Battle Royale</strong> modes with private or public rooms.",
+        modeTitle: "Mode:",
+        modeDuel: "1 vs 1",
+        modeBattle: "Private Battle Royale",
+        languageCardTitle: "Language",
+        createCardTitle: "1. Create room",
+        createCardHint: "Share the code",
+        joinCardTitle: "2. Join room",
+        playerNameCardTitle: "Player name",
+        playerNameCardHint: "Visible in Battle Royale",
+        playerNamePlaceholder: "Your name (optional)",
+        publicBattleTitle: "Public Battle Royale",
+        publicBattleHint: "Auto matchmaking",
+        publicBattleBtn: "Play now",
+        createBtn: "Create room",
+        joinBtn: "Join",
+        joinPlaceholder: "Room code (e.g. 4821)",
+        leaveBtn: "Leave room",
+        playerText: "Player:",
+        roomText: "Room:",
+        scorePlayer1: "Player 1",
+        scorePlayer2: "Player 2",
+        scoreNote1: "Room creator",
+        scoreNote2: "Challenger",
+        turnLabel: "Turn: Player {n}",
+        badgeBattle: "Battle Royale",
+        badgeFinished: "Game finished",
+        timerLabel: "{s}s left",
+        waitingOtherPlayer: "Waiting for the other player...",
+        waitingBothPlayers: "Waiting for both players to join...",
+        waitingStart: "Waiting to start...",
+        waitingPlayersBattle: "Waiting for players to join the Battle Royale...",
+        waitingStartBattle: "The Battle Royale is about to start...",
+        statusCreatingRoom: "Creating room...",
+        statusCreateSuccessDuel: "Room created! Wait for Player 2 to join.",
+        statusCreateSuccessBattle: "Battle Royale room created! Wait for the initial countdown.",
+        statusCreateError: "Error creating room.",
+        statusJoinNeedCode: "Enter a room code.",
+        statusJoinSearching: "Searching room...",
+        statusJoinNotFound: "Room not found.",
+        statusJoinFull: "Room is already full.",
+        statusJoinFinished: "This game is already finished.",
+        statusJoinSuccess: "You joined the room!",
+        statusJoinError: "Error joining room.",
+        roomClosed: "The room has been closed.",
+        question: "Which country does this flag belong to?",
+        questionBattle: "Guess the flag: you have 10 seconds!",
+        msgTurnOtherPlayer: "It's the other player's turn.",
+        msgCorrect: "Correct! 🎉",
+        msgWrong: "Wrong! It was: ",
+        msgCorrectBattle: "Correct! You stay alive. 🎉",
+        msgWrongBattle: "Wrong or too late! You are eliminated.",
+        leftRoom: "You left the room.",
+        battleStatusLabel: "Alive players:",
+        battleStatus: "Players alive: {alive} / {total}",
+        battleWinner: "{name} wins!",
+        battleNoWinner: "No winner.",
+        youWin: "You won the Battle Royale! 🏆",
+        youLose: "You have been eliminated from the Battle Royale.",
+        youEliminated: "You have been eliminated. You can watch the rest of the game.",
+        statusPublicSearching: "Looking for a public room...",
+        statusPublicFull: "The public room is full, try again soon.",
+        statusPublicInProgress: "A public game is already in progress, try again soon.",
+        statusPublicJoined: "You joined the public Battle Royale!",
+        statusPublicError: "Error joining the public Battle Royale.",
+        labelAlive: "alive",
+        labelDead: "eliminated",
+        lobbyCountdown: "Lobby countdown: {s}s",
+        playerUnknown: "-",
+        playerLabelBase: "Player"
+      }
+    };
+
+    let currentLang = 'it';
+    function t(key) {
+      const table = translations[currentLang] || translations['en'];
+      return (table && table[key]) || translations['en'][key] || key;
+    }
+
+    function applyTranslations() {
+      document.getElementById('appTitle').children[1].textContent = t('title');
+      document.getElementById('subtitleText').innerHTML = t('subtitle');
+      document.getElementById('modeLabelTitle').textContent = t('modeTitle');
+      document.getElementById('modeLabelDuel').textContent = t('modeDuel');
+      document.getElementById('modeLabelBattle').textContent = t('modeBattle');
+      document.getElementById('languageCardTitle').textContent = t('languageCardTitle');
+      document.getElementById('createCardTitle').textContent = t('createCardTitle');
+      document.getElementById('createCardHint').textContent = t('createCardHint');
+      document.getElementById('joinCardTitle').textContent = t('joinCardTitle');
+      document.getElementById('playerNameCardTitle').textContent = t('playerNameCardTitle');
+      document.getElementById('playerNameCardHint').textContent = t('playerNameCardHint');
+      document.getElementById('playerNameInput').placeholder = t('playerNamePlaceholder');
+      document.getElementById('publicBattleTitle').textContent = t('publicBattleTitle');
+      document.getElementById('publicBattleHint').textContent = t('publicBattleHint');
+      document.getElementById('publicBattleBtnText').textContent = t('publicBattleBtn');
+      document.getElementById('createBtnText').textContent = t('createBtn');
+      document.getElementById('joinBtnText').textContent = t('joinBtn');
+      document.getElementById('joinCodeInput').placeholder = t('joinPlaceholder');
+      document.getElementById('leaveBtnText').textContent = t('leaveBtn');
+      document.getElementById('playerTextLabel').textContent = t('playerText');
+      document.getElementById('roomTextLabel').textContent = t('roomText');
+      document.getElementById('scoreName1').textContent = t('scorePlayer1');
+      document.getElementById('scoreName2').textContent = t('scorePlayer2');
+      document.getElementById('scoreNote1').textContent = t('scoreNote1');
+      document.getElementById('scoreNote2').textContent = t('scoreNote2');
+      document.getElementById('battlePlayersLabel').textContent = t('battleStatusLabel');
+    }
+
+    // === DATI PAESI (nomi inglesi uguali per tutte le lingue) ===
+    const countries = [
+      { name: 'Afghanistan', code: 'af' },
+      { name: 'Åland Islands', code: 'ax' },
+      { name: 'Albania', code: 'al' },
+      { name: 'Algeria', code: 'dz' },
+      { name: 'American Samoa', code: 'as' },
+      { name: 'Andorra', code: 'ad' },
+      { name: 'Angola', code: 'ao' },
+      { name: 'Anguilla', code: 'ai' },
+      { name: 'Antarctica', code: 'aq' },
+      { name: 'Antigua and Barbuda', code: 'ag' },
+      { name: 'Argentina', code: 'ar' },
+      { name: 'Armenia', code: 'am' },
+      { name: 'Aruba', code: 'aw' },
+      { name: 'Australia', code: 'au' },
+      { name: 'Austria', code: 'at' },
+      { name: 'Azerbaijan', code: 'az' },
+      { name: 'Bahamas', code: 'bs' },
+      { name: 'Bahrain', code: 'bh' },
+      { name: 'Bangladesh', code: 'bd' },
+      { name: 'Barbados', code: 'bb' },
+      { name: 'Belarus', code: 'by' },
+      { name: 'Belgium', code: 'be' },
+      { name: 'Belize', code: 'bz' },
+      { name: 'Benin', code: 'bj' },
+      { name: 'Bermuda', code: 'bm' },
+      { name: 'Bhutan', code: 'bt' },
+      { name: 'Bolivia', code: 'bo' },
+      { name: 'Bonaire, Sint Eustatius and Saba', code: 'bq' },
+      { name: 'Bosnia and Herzegovina', code: 'ba' },
+      { name: 'Botswana', code: 'bw' },
+      { name: 'Bouvet Island', code: 'bv' },
+      { name: 'Brazil', code: 'br' },
+      { name: 'British Indian Ocean Territory', code: 'io' },
+      { name: 'Brunei Darussalam', code: 'bn' },
+      { name: 'Bulgaria', code: 'bg' },
+      { name: 'Burkina Faso', code: 'bf' },
+      { name: 'Burundi', code: 'bi' },
+      { name: 'Cabo Verde', code: 'cv' },
+      { name: 'Cambodia', code: 'kh' },
+      { name: 'Cameroon', code: 'cm' },
+      { name: 'Canada', code: 'ca' },
+      { name: 'Cayman Islands', code: 'ky' },
+      { name: 'Central African Republic', code: 'cf' },
+      { name: 'Chad', code: 'td' },
+      { name: 'Chile', code: 'cl' },
+      { name: 'China', code: 'cn' },
+      { name: 'Christmas Island', code: 'cx' },
+      { name: 'Cocos (Keeling) Islands', code: 'cc' },
+      { name: 'Colombia', code: 'co' },
+      { name: 'Comoros', code: 'km' },
+      { name: 'Congo', code: 'cg' },
+      { name: 'Congo, Democratic Republic of the', code: 'cd' },
+      { name: 'Cook Islands', code: 'ck' },
+      { name: 'Costa Rica', code: 'cr' },
+      { name: "Côte d'Ivoire", code: 'ci' },
+      { name: 'Croatia', code: 'hr' },
+      { name: 'Cuba', code: 'cu' },
+      { name: 'Curaçao', code: 'cw' },
+      { name: 'Cyprus', code: 'cy' },
+      { name: 'Czechia', code: 'cz' },
+      { name: 'Denmark', code: 'dk' },
+      { name: 'Djibouti', code: 'dj' },
+      { name: 'Dominica', code: 'dm' },
+      { name: 'Dominican Republic', code: 'do' },
+      { name: 'Ecuador', code: 'ec' },
+      { name: 'Egypt', code: 'eg' },
+      { name: 'El Salvador', code: 'sv' },
+      { name: 'Equatorial Guinea', code: 'gq' },
+      { name: 'Eritrea', code: 'er' },
+      { name: 'Estonia', code: 'ee' },
+      { name: 'Eswatini', code: 'sz' },
+      { name: 'Ethiopia', code: 'et' },
+      { name: 'Falkland Islands (Malvinas)', code: 'fk' },
+      { name: 'Faroe Islands', code: 'fo' },
+      { name: 'Fiji', code: 'fj' },
+      { name: 'Finland', code: 'fi' },
+      { name: 'France', code: 'fr' },
+      { name: 'French Guiana', code: 'gf' },
+      { name: 'French Polynesia', code: 'pf' },
+      { name: 'French Southern Territories', code: 'tf' },
+      { name: 'Gabon', code: 'ga' },
+      { name: 'Gambia', code: 'gm' },
+      { name: 'Georgia', code: 'ge' },
+      { name: 'Germany', code: 'de' },
+      { name: 'Ghana', code: 'gh' },
+      { name: 'Gibraltar', code: 'gi' },
+      { name: 'Greece', code: 'gr' },
+      { name: 'Greenland', code: 'gl' },
+      { name: 'Grenada', code: 'gd' },
+      { name: 'Guadeloupe', code: 'gp' },
+      { name: 'Guam', code: 'gu' },
+      { name: 'Guatemala', code: 'gt' },
+      { name: 'Guernsey', code: 'gg' },
+      { name: 'Guinea', code: 'gn' },
+      { name: 'Guinea-Bissau', code: 'gw' },
+      { name: 'Guyana', code: 'gy' },
+      { name: 'Haiti', code: 'ht' },
+      { name: 'Heard Island and McDonald Islands', code: 'hm' },
+      { name: 'Holy See', code: 'va' },
+      { name: 'Honduras', code: 'hn' },
+      { name: 'Hong Kong', code: 'hk' },
+      { name: 'Hungary', code: 'hu' },
+      { name: 'Iceland', code: 'is' },
+      { name: 'India', code: 'in' },
+      { name: 'Indonesia', code: 'id' },
+      { name: 'Iran, Islamic Republic of', code: 'ir' },
+      { name: 'Iraq', code: 'iq' },
+      { name: 'Ireland', code: 'ie' },
+      { name: 'Isle of Man', code: 'im' },
+      { name: 'Israel', code: 'il' },
+      { name: 'Italy', code: 'it' },
+      { name: 'Jamaica', code: 'jm' },
+      { name: 'Japan', code: 'jp' },
+      { name: 'Jersey', code: 'je' },
+      { name: 'Jordan', code: 'jo' },
+      { name: 'Kazakhstan', code: 'kz' },
+      { name: 'Kenya', code: 'ke' },
+      { name: 'Kiribati', code: 'ki' },
+      { name: "Korea, Democratic People's Republic of", code: 'kp' },
+      { name: 'Korea, Republic of', code: 'kr' },
+      { name: 'Kuwait', code: 'kw' },
+      { name: 'Kyrgyzstan', code: 'kg' },
+      { name: "Lao People's Democratic Republic", code: 'la' },
+      { name: 'Latvia', code: 'lv' },
+      { name: 'Lebanon', code: 'lb' },
+      { name: 'Lesotho', code: 'ls' },
+      { name: 'Liberia', code: 'lr' },
+      { name: 'Libya', code: 'ly' },
+      { name: 'Liechtenstein', code: 'li' },
+      { name: 'Lithuania', code: 'lt' },
+      { name: 'Luxembourg', code: 'lu' },
+      { name: 'Macao', code: 'mo' },
+      { name: 'Madagascar', code: 'mg' },
+      { name: 'Malawi', code: 'mw' },
+      { name: 'Malaysia', code: 'my' },
+      { name: 'Maldives', code: 'mv' },
+      { name: 'Mali', code: 'ml' },
+      { name: 'Malta', code: 'mt' },
+      { name: 'Marshall Islands', code: 'mh' },
+      { name: 'Martinique', code: 'mq' },
+      { name: 'Mauritania', code: 'mr' },
+      { name: 'Mauritius', code: 'mu' },
+      { name: 'Mayotte', code: 'yt' },
+      { name: 'Mexico', code: 'mx' },
+      { name: 'Micronesia, Federated States of', code: 'fm' },
+      { name: 'Moldova, Republic of', code: 'md' },
+      { name: 'Monaco', code: 'mc' },
+      { name: 'Mongolia', code: 'mn' },
+      { name: 'Montenegro', code: 'me' },
+      { name: 'Montserrat', code: 'ms' },
+      { name: 'Morocco', code: 'ma' },
+      { name: 'Mozambique', code: 'mz' },
+      { name: 'Myanmar', code: 'mm' },
+      { name: 'Namibia', code: 'na' },
+      { name: 'Nauru', code: 'nr' },
+      { name: 'Nepal', code: 'np' },
+      { name: 'Netherlands', code: 'nl' },
+      { name: 'New Caledonia', code: 'nc' },
+      { name: 'New Zealand', code: 'nz' },
+      { name: 'Nicaragua', code: 'ni' },
+      { name: 'Niger', code: 'ne' },
+      { name: 'Nigeria', code: 'ng' },
+      { name: 'Niue', code: 'nu' },
+      { name: 'Norfolk Island', code: 'nf' },
+      { name: 'North Macedonia', code: 'mk' },
+      { name: 'Northern Mariana Islands', code: 'mp' },
+      { name: 'Norway', code: 'no' },
+      { name: 'Oman', code: 'om' },
+      { name: 'Pakistan', code: 'pk' },
+      { name: 'Palau', code: 'pw' },
+      { name: 'Palestine, State of', code: 'ps' },
+      { name: 'Panama', code: 'pa' },
+      { name: 'Papua New Guinea', code: 'pg' },
+      { name: 'Paraguay', code: 'py' },
+      { name: 'Peru', code: 'pe' },
+      { name: 'Philippines', code: 'ph' },
+      { name: 'Pitcairn', code: 'pn' },
+      { name: 'Poland', code: 'pl' },
+      { name: 'Portugal', code: 'pt' },
+      { name: 'Puerto Rico', code: 'pr' },
+      { name: 'Qatar', code: 'qa' },
+      { name: 'Réunion', code: 're' },
+      { name: 'Romania', code: 'ro' },
+      { name: 'Russian Federation', code: 'ru' },
+      { name: 'Rwanda', code: 'rw' },
+      { name: 'Saint Barthélemy', code: 'bl' },
+      { name: 'Saint Helena, Ascension and Tristan da Cunha', code: 'sh' },
+      { name: 'Saint Kitts and Nevis', code: 'kn' },
+      { name: 'Saint Lucia', code: 'lc' },
+      { name: 'Saint Martin (French part)', code: 'mf' },
+      { name: 'Saint Pierre and Miquelon', code: 'pm' },
+      { name: 'Saint Vincent and the Grenadines', code: 'vc' },
+      { name: 'Samoa', code: 'ws' },
+      { name: 'San Marino', code: 'sm' },
+      { name: 'Sao Tome and Principe', code: 'st' },
+      { name: 'Saudi Arabia', code: 'sa' },
+      { name: 'Senegal', code: 'sn' },
+      { name: 'Serbia', code: 'rs' },
+      { name: 'Seychelles', code: 'sc' },
+      { name: 'Sierra Leone', code: 'sl' },
+      { name: 'Singapore', code: 'sg' },
+      { name: 'Sint Maarten (Dutch part)', code: 'sx' },
+      { name: 'Slovakia', code: 'sk' },
+      { name: 'Slovenia', code: 'si' },
+      { name: 'Solomon Islands', code: 'sb' },
+      { name: 'Somalia', code: 'so' },
+      { name: 'South Africa', code: 'za' },
+      { name: 'South Georgia and the South Sandwich Islands', code: 'gs' },
+      { name: 'South Sudan', code: 'ss' },
+      { name: 'Spain', code: 'es' },
+      { name: 'Sri Lanka', code: 'lk' },
+      { name: 'Sudan', code: 'sd' },
+      { name: 'Suriname', code: 'sr' },
+      { name: 'Svalbard and Jan Mayen', code: 'sj' },
+      { name: 'Sweden', code: 'se' },
+      { name: 'Switzerland', code: 'ch' },
+      { name: 'Syrian Arab Republic', code: 'sy' },
+      { name: 'Taiwan, Province of China', code: 'tw' },
+      { name: 'Tajikistan', code: 'tj' },
+      { name: 'Tanzania, United Republic of', code: 'tz' },
+      { name: 'Thailand', code: 'th' },
+      { name: 'Timor-Leste', code: 'tl' },
+      { name: 'Togo', code: 'tg' },
+      { name: 'Tokelau', code: 'tk' },
+      { name: 'Tonga', code: 'to' },
+      { name: 'Trinidad and Tobago', code: 'tt' },
+      { name: 'Tunisia', code: 'tn' },
+      { name: 'Türkiye', code: 'tr' },
+      { name: 'Turkmenistan', code: 'tm' },
+      { name: 'Turks and Caicos Islands', code: 'tc' },
+      { name: 'Tuvalu', code: 'tv' },
+      { name: 'Uganda', code: 'ug' },
+      { name: 'Ukraine', code: 'ua' },
+      { name: 'United Arab Emirates', code: 'ae' },
+      { name: 'United Kingdom of Great Britain and Northern Ireland', code: 'gb' },
+      { name: 'United States of America', code: 'us' },
+      { name: 'United States Minor Outlying Islands', code: 'um' },
+      { name: 'Uruguay', code: 'uy' },
+      { name: 'Uzbekistan', code: 'uz' },
+      { name: 'Vanuatu', code: 'vu' },
+      { name: 'Venezuela, Bolivarian Republic of', code: 've' },
+      { name: 'Viet Nam', code: 'vn' },
+      { name: 'Virgin Islands, British', code: 'vg' },
+      { name: 'Virgin Islands, U.S.', code: 'vi' },
+      { name: 'Wallis and Futuna', code: 'wf' },
+      { name: 'Western Sahara', code: 'eh' },
+      { name: 'Yemen', code: 'ye' },
+      { name: 'Zambia', code: 'zm' },
+      { name: 'Zimbabwe', code: 'zw' }
+    ];
+
+    // === STATO LOCALE ===
+    let playerNumber = null;   // per 1vs1 (1 o 2)
+    let playerKey = null;      // per Battle Royale (id nel nodo players)
+    let roomCode = null;
+    let currentQuestionId = null;
+    let answeringLocked = false;
+    let roomRef = null;
+    let gameMode = 'duel';     // 'duel' | 'battle' (privata) | 'battlePublic' (solo logica)
+    let lastKnownMeAlive = true;
+
+    const BATTLE_TIME_LIMIT_MS = 10000;   // 10 secondi per rispondere
+    const LOBBY_COUNTDOWN_MS = 15000;     // 15 secondi countdown iniziale
+    const PUBLIC_MIN_PLAYERS = 10;
+    const PUBLIC_MAX_PLAYERS = 20;
+
+    let currentLobbyStartTime = null;
+    let currentQuestionStartTime = null;
+    let timerMode = null; // 'lobby' | 'question' | null
+    let sharedTimerInterval = null;
+
+    // === ELEMENTI DOM ===
+    const createRoomBtn = document.getElementById('createRoomBtn');
+    const roomCodeLabel = document.getElementById('roomCodeLabel');
+    const createStatus = document.getElementById('createStatus');
+
+    const joinCodeInput = document.getElementById('joinCodeInput');
+    const joinRoomBtn = document.getElementById('joinRoomBtn');
+    const joinStatus = document.getElementById('joinStatus');
+
+    const publicBattleBtn = document.getElementById('publicBattleBtn');
+    const publicBattleStatus = document.getElementById('publicBattleStatus');
+
+    const playerNameInput = document.getElementById('playerNameInput');
+
+    const languageSelect = document.getElementById('languageSelect');
+    const gameContainer = document.getElementById('gameContainer');
+    const playerLabel = document.getElementById('playerLabel');
+    const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+    const turnBadge = document.getElementById('turnBadge');
+    const timerBadge = document.getElementById('timerBadge');
+    const timerText = document.getElementById('timerText');
+
+    const scoresDuel = document.getElementById('scoresDuel');
+    const battleStatusEl = document.getElementById('battleStatus');
+    const battlePlayersValue = document.getElementById('battlePlayersValue');
+    const battleExtra = document.getElementById('battleExtra');
+    const battlePlayersList = document.getElementById('battlePlayersList');
+    const scoreP1 = document.getElementById('scoreP1');
+    const scoreP2 = document.getElementById('scoreP2');
+    const score1El = document.getElementById('score1');
+    const score2El = document.getElementById('score2');
+
+    const questionTitle = document.getElementById('questionTitle');
+    const flagImg = document.getElementById('flagImg');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const gameMessage = document.getElementById('gameMessage');
+    const leaveBtn = document.getElementById('leaveBtn');
+
+    const modePills = document.querySelectorAll('.mode-pill');
+
+    // === SUPPORTO ===
+    function randomRoomCode() {
+      return Math.floor(1000 + Math.random() * 9000).toString();
+    }
+
+    function shuffleArray(array) {
+      const arr = array.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+      }
+      return arr;
+    }
+
+    function chooseRandomQuestion() {
+      const randomIndex = Math.floor(Math.random() * countries.length);
+      const correct = countries[randomIndex];
+      const others = countries.filter(c => c !== correct);
+      const shuffledOthers = shuffleArray(others).slice(0, 3);
+      const options = shuffleArray([correct, ...shuffledOthers]);
+      const now = Date.now();
+      currentQuestionStartTime = now;
+      return {
+        id: now.toString(),
+        correctCode: correct.code,
+        correctName: correct.name,
+        options: options.map(o => ({ name: o.name, code: o.code })),
+        startTime: now
+      };
+    }
+
+    function getSelectedMode() {
+      const checked = document.querySelector('input[name="mode"]:checked');
+      return checked ? checked.value : 'duel';
+    }
+
+    function getPlayerNameFallback() {
+      return t('playerLabelBase') + ' ' + (Math.floor(Math.random() * 900) + 100);
+    }
+
+    function clearSharedTimer() {
+      if (sharedTimerInterval) {
+        clearInterval(sharedTimerInterval);
+        sharedTimerInterval = null;
+      }
+      timerMode = null;
+      timerBadge.style.display = 'none';
+    }
+
+    function startLobbyTimer(lobbyStartTime) {
+      clearSharedTimer();
+      currentLobbyStartTime = lobbyStartTime || Date.now();
+      timerMode = 'lobby';
+      timerBadge.style.display = 'inline-flex';
+
+      function tick() {
+        if (timerMode !== 'lobby' || !roomRef) {
+          clearSharedTimer();
+          return;
+        }
+        const now = Date.now();
+        const remaining = Math.max(0, LOBBY_COUNTDOWN_MS - (now - currentLobbyStartTime));
+        const seconds = Math.ceil(remaining / 1000);
+        timerText.textContent = t('lobbyCountdown').replace('{s}', seconds);
+
+        if (remaining <= 0) {
+          clearSharedTimer();
+          roomRef.transaction(function (room) {
+            if (!room) return room;
+            if (room.state !== 'lobby') return room;
+            if (room.question) return room;
+            room.state = 'playing';
+            room.question = chooseRandomQuestion();
+            return room;
+          });
+        }
+      }
+
+      tick();
+      sharedTimerInterval = setInterval(tick, 300);
+    }
+
+    function startBattleTimer(q) {
+      clearSharedTimer();
+      if (!q || !q.startTime) return;
+      currentQuestionStartTime = q.startTime;
+      timerMode = 'question';
+      timerBadge.style.display = 'inline-flex';
+
+      function tick() {
+        if (timerMode !== 'question' || !roomRef || !currentQuestionId || q.id !== currentQuestionId) {
+          clearSharedTimer();
+          return;
+        }
+        const now = Date.now();
+        let remaining = Math.max(0, BATTLE_TIME_LIMIT_MS - (now - currentQuestionStartTime));
+        const seconds = Math.ceil(remaining / 1000);
+        timerText.textContent = t('timerLabel').replace('{s}', seconds);
+
+        if (remaining <= 0) {
+          clearSharedTimer();
+          handleBattleTimeout(q);
+        }
+      }
+
+      tick();
+      sharedTimerInterval = setInterval(tick, 250);
+    }
+
+    function handleBattleTimeout(q) {
+      const optionButtons = Array.from(optionsContainer.querySelectorAll('.option-btn'));
+      optionButtons.forEach(b => { b.disabled = true; });
+
+      roomRef.transaction(function (room) {
+        if (!room || !room.question || room.question.id !== q.id || !room.players) return room;
+        const ids = Object.keys(room.players);
+        ids.forEach(id => {
+          const p = room.players[id];
+          if (!p.alive) return;
+          if (p.answeredId === q.id) return;
+          p.alive = false;
+          p.answeredId = q.id;
+        });
+
+        const aliveIds = ids.filter(id => room.players[id].alive);
+        const aliveCount = aliveIds.length;
+
+        if (aliveCount <= 1) {
+          room.state = 'finished';
+          room.winnerId = aliveIds[0] || null;
+          return room;
+        }
+
+        room.question = chooseRandomQuestion();
+        return room;
+      });
+    }
+
+    // === LOGICA STANZE ===
+    async function createRoom() {
+      if (roomRef) return;
+      const selected = getSelectedMode();
+      if (selected === 'duel') {
+        await createRoomDuel();
+      } else {
+        await createRoomBattlePrivate();
+      }
+    }
+
+    async function createRoomDuel() {
+      try {
+        createStatus.textContent = t('statusCreatingRoom');
+        const code = randomRoomCode();
+        roomCode = code;
+        roomRef = db.ref('rooms/' + code);
+
+        const initialQuestion = chooseRandomQuestion();
+        const rawName = playerNameInput.value.trim();
+        const name = rawName || (t('playerLabelBase') + ' 1');
+
+        await roomRef.set({
+          code: code,
+          mode: 'duel',
+          createdAt: Date.now(),
+          state: 'waiting',
+          currentPlayer: 1,
+          question: initialQuestion,
+          scores: { p1: 0, p2: 0 },
+          players: {
+            p1: { joined: true, name: name },
+            p2: { joined: false, name: null }
+          }
+        });
+
+        playerNumber = 1;
+        playerKey = null;
+        gameMode = 'duel';
+        setupRoomListener();
+        createStatus.textContent = t('statusCreateSuccessDuel');
+        roomCodeLabel.textContent = 'Code: ' + code;
+        showGameUI();
+      } catch (err) {
+        console.error(err);
+        createStatus.textContent = t('statusCreateError');
+      }
+    }
+
+    async function createRoomBattlePrivate() {
+      try {
+        createStatus.textContent = t('statusCreatingRoom');
+        const code = randomRoomCode();
+        roomCode = code;
+        roomRef = db.ref('rooms/' + code);
+
+        const rawName = playerNameInput.value.trim();
+        const myName = rawName || getPlayerNameFallback();
+
+        const now = Date.now();
+
+        await roomRef.set({
+          code: code,
+          mode: 'battle',
+          createdAt: now,
+          state: 'lobby',
+          lobbyStartTime: now,
+          question: null,
+          players: {}
+        });
+
+        playerKey = roomRef.child('players').push().key;
+        await roomRef.child('players/' + playerKey).set({
+          joined: true,
+          alive: true,
+          score: 0,
+          name: myName
+        });
+
+        playerNumber = null;
+        lastKnownMeAlive = true;
+        gameMode = 'battle';
+        setupRoomListener();
+        createStatus.textContent = t('statusCreateSuccessBattle');
+        roomCodeLabel.textContent = 'Code: ' + code;
+        showGameUI();
+      } catch (err) {
+        console.error(err);
+        createStatus.textContent = t('statusCreateError');
+      }
+    }
+
+    async function joinRoom() {
+      try {
+        const code = joinCodeInput.value.trim();
+        if (!code) {
+          joinStatus.textContent = t('statusJoinNeedCode');
+          return;
+        }
+
+        joinStatus.textContent = t('statusJoinSearching');
+        const ref = db.ref('rooms/' + code);
+        const snapshot = await ref.once('value');
+
+        if (!snapshot.exists()) {
+          joinStatus.textContent = t('statusJoinNotFound');
+          return;
+        }
+
+        const data = snapshot.val();
+        const mode = data.mode || 'duel';
+        roomCode = code;
+        roomRef = ref;
+
+        const rawName = playerNameInput.value.trim();
+
+        if (mode === 'duel') {
+          gameMode = 'duel';
+          if (data.players && data.players.p2 && data.players.p2.joined) {
+            joinStatus.textContent = t('statusJoinFull');
+            roomRef = null;
+            return;
+          }
+
+          playerNumber = 2;
+          playerKey = null;
+          const name = rawName || (t('playerLabelBase') + ' 2');
+          await roomRef.child('players/p2').set({ joined: true, name: name });
+          await roomRef.child('state').set('playing');
+        } else {
+          // battle privata
+          gameMode = 'battle';
+          if (data.state === 'finished') {
+            joinStatus.textContent = t('statusJoinFinished');
+            roomRef = null;
+            return;
+          }
+
+          const myName = rawName || getPlayerNameFallback();
+          playerKey = roomRef.child('players').push().key;
+          await roomRef.child('players/' + playerKey).set({
+            joined: true,
+            alive: true,
+            score: 0,
+            name: myName
+          });
+          playerNumber = null;
+          lastKnownMeAlive = true;
+        }
+
+        joinStatus.textContent = t('statusJoinSuccess');
+        setupRoomListener();
+        showGameUI();
+      } catch (err) {
+        console.error(err);
+        joinStatus.textContent = t('statusJoinError');
+      }
+    }
+
+    async function joinPublicBattle() {
+      try {
+        publicBattleStatus.textContent = t('statusPublicSearching');
+        const ref = db.ref('publicBattle/room');
+        let snap = await ref.once('value');
+        let data = snap.val();
+
+        // crea stanza pubblica se non esiste o è finita
+        if (!data || data.state === 'finished') {
+          await ref.set({
+            mode: 'battlePublic',
+            createdAt: Date.now(),
+            state: 'waiting',   // waiting -> lobby -> playing -> finished
+            lobbyStartTime: null,
+            question: null,
+            players: {}
+          });
+          snap = await ref.once('value');
+          data = snap.val();
+        }
+
+        if (data.state === 'playing') {
+          publicBattleStatus.textContent = t('statusPublicInProgress');
+          return;
+        }
+
+        const players = data.players || {};
+        const ids = Object.keys(players);
+        const total = ids.length;
+
+        if (total >= PUBLIC_MAX_PLAYERS) {
+          publicBattleStatus.textContent = t('statusPublicFull');
+          return;
+        }
+
+        const rawName = playerNameInput.value.trim();
+        const myName = rawName || getPlayerNameFallback();
+
+        const newKey = ref.child('players').push().key;
+        await ref.child('players/' + newKey).set({
+          joined: true,
+          alive: true,
+          score: 0,
+          name: myName
+        });
+
+        // se si arriva a 10 giocatori e si è ancora in waiting, fai partire countdown
+        await ref.transaction(function (room) {
+          if (!room) return room;
+          const p = room.players || {};
+          const idsNow = Object.keys(p);
+          if (room.state === 'waiting' && idsNow.length >= PUBLIC_MIN_PLAYERS) {
+            room.state = 'lobby';
+            room.lobbyStartTime = Date.now();
+          }
+          return room;
+        });
+
+        playerKey = newKey;
+        playerNumber = null;
+        roomRef = ref;
+        roomCode = 'PUB';
+        gameMode = 'battlePublic';
+        lastKnownMeAlive = true;
+        publicBattleStatus.textContent = t('statusPublicJoined');
+        setupRoomListener();
+        showGameUI();
+      } catch (e) {
+        console.error(e);
+        publicBattleStatus.textContent = t('statusPublicError');
+      }
+    }
+
+    function showGameUI() {
+      gameContainer.style.display = 'block';
+      if (gameMode === 'duel' && playerNumber) {
+        playerLabel.textContent = t('playerLabelBase') + ' ' + playerNumber;
+      } else {
+        playerLabel.textContent = t('playerUnknown');
+      }
+      roomCodeDisplay.textContent = roomCode || '';
+    }
+
+    function setupRoomListener() {
+      if (!roomRef) return;
+
+      roomRef.on('value', function (snapshot) {
+        const data = snapshot.val();
+        if (!data) {
+          gameMessage.textContent = t('roomClosed');
+          clearSharedTimer();
+          return;
+        }
+
+        const mode = data.mode || 'duel';
+        if (mode === 'duel') {
+          gameMode = 'duel';
+          clearSharedTimer();
+          updateDuelUI(data);
+        } else {
+          gameMode = (mode === 'battlePublic') ? 'battlePublic' : 'battle';
+          updateBattleUI(data);
+        }
+      });
+    }
+
+    function updateDuelUI(data) {
+      scoresDuel.style.display = 'flex';
+      battleStatusEl.style.display = 'none';
+      battlePlayersList.style.display = 'none';
+      clearSharedTimer();
+
+      const s1 = data.scores && typeof data.scores.p1 === 'number' ? data.scores.p1 : 0;
+      const s2 = data.scores && typeof data.scores.p2 === 'number' ? data.scores.p2 : 0;
+      score1El.textContent = s1;
+      score2El.textContent = s2;
+
+      const current = data.currentPlayer || 1;
+      turnBadge.textContent = t('turnLabel').replace('{n}', current);
+
+      if (current === 1) {
+        scoreP1.classList.add('active');
+        scoreP2.classList.remove('active');
+      } else {
+        scoreP2.classList.add('active');
+        scoreP1.classList.remove('active');
+      }
+
+      const p1Joined = data.players && data.players.p1 && data.players.p1.joined;
+      const p2Joined = data.players && data.players.p2 && data.players.p2.joined;
+
+      if (data.players) {
+        if (data.players.p1 && data.players.p1.name) {
+          document.getElementById('scoreNote1').textContent = data.players.p1.name;
+        }
+        if (data.players.p2 && data.players.p2.name) {
+          document.getElementById('scoreNote2').textContent = data.players.p2.name;
+        }
+      }
+
+      if (playerNumber) {
+        if (playerNumber === 1 && data.players && data.players.p1 && data.players.p1.name) {
+          playerLabel.textContent = data.players.p1.name;
+        } else if (playerNumber === 2 && data.players && data.players.p2 && data.players.p2.name) {
+          playerLabel.textContent = data.players.p2.name;
+        } else {
+          playerLabel.textContent = t('playerLabelBase') + ' ' + playerNumber;
+        }
+      }
+
+      if (!p1Joined || !p2Joined) {
+        questionTitle.textContent = t('waitingBothPlayers');
+        flagImg.src = '';
+        optionsContainer.innerHTML = '';
+        return;
+      }
+
+      if (data.state !== 'playing') {
+        questionTitle.textContent = t('waitingStart');
+        return;
+      }
+
+      const q = data.question;
+      if (!q) return;
+
+      if (currentQuestionId !== q.id) {
+        currentQuestionId = q.id;
+        renderQuestion(q, data.currentPlayer);
+      }
+    }
+
+    function updateBattleUI(data) {
+      scoresDuel.style.display = 'none';
+      battleStatusEl.style.display = 'flex';
+      battlePlayersList.style.display = 'block';
+
+      const players = data.players || {};
+      const ids = Object.keys(players);
+      const total = ids.length;
+
+      const aliveIds = ids.filter(id => players[id].alive);
+      const aliveCount = aliveIds.length;
+
+      lastKnownMeAlive = playerKey && players[playerKey] ? !!players[playerKey].alive : false;
+
+      battlePlayersValue.textContent = aliveCount + " / " + total;
+
+      // label giocatore
+      if (playerKey && players[playerKey] && players[playerKey].name) {
+        playerLabel.textContent = players[playerKey].name;
+      } else if (gameMode === 'battle') {
+        playerLabel.textContent = t('playerUnknown');
+      } else if (gameMode === 'battlePublic') {
+        playerLabel.textContent = playerKey && players[playerKey] && players[playerKey].name ?
+          players[playerKey].name : t('playerUnknown');
+      }
+
+      // lista giocatori
+      const arr = ids.map(id => {
+        const p = players[id];
+        return {
+          id,
+          name: p.name || (t('playerLabelBase') + ' ?'),
+          score: p.score || 0,
+          alive: !!p.alive
+        };
+      });
+
+      arr.sort((a, b) => {
+        if (a.alive !== b.alive) return a.alive ? -1 : 1; // vivi prima
+        return (b.score || 0) - (a.score || 0);
+      });
+
+      battlePlayersList.innerHTML = arr.map(p => {
+        const classes = [
+          'battle-player',
+          p.alive ? 'alive' : 'dead',
+          (p.id === playerKey) ? 'me' : ''
+        ].join(' ');
+        const statusLabel = p.alive ? t('labelAlive') : t('labelDead');
+        return `
+          <div class="${classes}">
+            <div>
+              <span class="battle-player-name">${p.name}</span>
+              <span class="battle-player-status">(${statusLabel})</span>
+            </div>
+            <div class="battle-player-score">${p.score}</div>
+          </div>
+        `;
+      }).join('');
+
+      // testo extra
+      let extra = '';
+      if (data.state === 'finished') {
+        if (data.winnerId && players[data.winnerId]) {
+          const winnerName = players[data.winnerId].name || t('playerLabelBase');
+          extra = t('battleWinner').replace('{name}', winnerName);
+        } else {
+          extra = t('battleNoWinner');
+        }
+        turnBadge.textContent = t('badgeFinished');
+      } else {
+        extra = t('battleStatus')
+          .replace('{alive}', aliveCount)
+          .replace('{total}', total);
+        turnBadge.textContent = t('badgeBattle');
+      }
+      battleExtra.textContent = extra;
+
+      // stati speciali
+      if (total === 0) {
+        questionTitle.textContent = t('waitingPlayersBattle');
+        flagImg.src = '';
+        optionsContainer.innerHTML = '';
+        clearSharedTimer();
+        return;
+      }
+
+      if (data.state === 'waiting') {
+        questionTitle.textContent = t('waitingPlayersBattle');
+        flagImg.src = '';
+        optionsContainer.innerHTML = '';
+        clearSharedTimer();
+        return;
+      }
+
+      if (data.state === 'lobby') {
+        questionTitle.textContent = t('waitingStartBattle');
+        flagImg.src = '';
+        optionsContainer.innerHTML = '';
+        if (data.lobbyStartTime) {
+          startLobbyTimer(data.lobbyStartTime);
+        }
+        return;
+      }
+
+      if (data.state !== 'playing') {
+        clearSharedTimer();
+        if (data.state === 'finished') {
+          if (playerKey && data.winnerId && data.winnerId === playerKey) {
+            gameMessage.textContent = t('youWin');
+          } else if (playerKey) {
+            gameMessage.textContent = t('youLose');
+          }
+        }
+        return;
+      }
+
+      const q = data.question;
+      if (!q) return;
+
+      if (currentQuestionId !== q.id) {
+        currentQuestionId = q.id;
+        currentQuestionStartTime = q.startTime || Date.now();
+        renderQuestion(q, null);
+        startBattleTimer(q);
+      }
+
+      if (!lastKnownMeAlive && data.state === 'playing') {
+        gameMessage.textContent = t('youEliminated');
+        answeringLocked = true;
+        Array.from(optionsContainer.querySelectorAll('.option-btn')).forEach(b => {
+          b.disabled = true;
+        });
+      }
+    }
+
+    function renderQuestion(q, currentPlayer) {
+      answeringLocked = false;
+      gameMessage.textContent = '';
+
+      questionTitle.textContent =
+        (gameMode === 'duel') ? t('question') : t('questionBattle');
+      flagImg.src = 'https://flagcdn.com/w320/' + q.correctCode + '.png';
+      flagImg.alt = 'Bandiera';
+
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach(function (opt, index) {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt.name || ('Option ' + (index + 1));
+        btn.dataset.correct = (opt.code === q.correctCode) ? 'true' : 'false';
+        btn.addEventListener('click', function () {
+          onAnswerClick(btn, q, currentPlayer);
+        });
+        optionsContainer.appendChild(btn);
+      });
+
+      if (gameMode === 'duel' && playerNumber !== currentPlayer) {
+        gameMessage.textContent = t('msgTurnOtherPlayer');
+      }
+    }
+
+    async function onAnswerClick(btn, q, currentPlayer) {
+      if (answeringLocked) return;
+
+      if (gameMode === 'duel' && playerNumber !== currentPlayer) {
+        return;
+      }
+
+      if (gameMode !== 'duel') {
+        // Battle Royale: controlla tempo
+        const now = Date.now();
+        const base = q.startTime || currentQuestionStartTime || now;
+        if (now - base > BATTLE_TIME_LIMIT_MS) {
+          answeringLocked = true;
+          gameMessage.textContent = t('msgWrongBattle');
+          const optionButtons = Array.from(optionsContainer.querySelectorAll('.option-btn'));
+          optionButtons.forEach(b => { b.disabled = true; });
+          setTimeout(function () {
+            roomRef.transaction(function (room) {
+              if (!room || !room.players || !playerKey) return room;
+              const me = room.players[playerKey];
+              if (!me || !me.alive) return room;
+              me.alive = false;
+              me.answeredId = q.id;
+              const ids = Object.keys(room.players);
+              const aliveIds = ids.filter(id => room.players[id].alive);
+              const aliveCount = aliveIds.length;
+              if (aliveCount <= 1) {
+                room.state = 'finished';
+                room.winnerId = aliveIds[0] || null;
+              }
+              return room;
+            });
+          }, 400);
+          return;
+        }
+      }
+
+      answeringLocked = true;
+      const isCorrect = btn.dataset.correct === 'true';
+      const optionButtons = Array.from(optionsContainer.querySelectorAll('.option-btn'));
+
+      optionButtons.forEach(function (b) {
+        if (b.dataset.correct === 'true') {
+          b.classList.add('correct');
+        } else if (b === btn && !isCorrect) {
+          b.classList.add('wrong');
+        }
+        b.disabled = true;
+      });
+
+      if (gameMode === 'duel') {
+        if (isCorrect) {
+          gameMessage.textContent = t('msgCorrect');
+        } else {
+          gameMessage.textContent = t('msgWrong') + q.correctName;
+        }
+
+        setTimeout(function () {
+          roomRef.transaction(function (room) {
+            if (!room) return room;
+            if (room.question && room.question.id !== q.id) {
+              return room;
+            }
+
+            room.scores = room.scores || { p1: 0, p2: 0 };
+
+            if (isCorrect) {
+              if (currentPlayer === 1) {
+                room.scores.p1 = (room.scores.p1 || 0) + 1;
+              } else {
+                room.scores.p2 = (room.scores.p2 || 0) + 1;
+              }
+            }
+
+            const newQ = chooseRandomQuestion();
+            room.question = newQ;
+            room.currentPlayer = currentPlayer === 1 ? 2 : 1;
+
+            return room;
+          });
+        }, 900);
+      } else {
+        if (isCorrect) {
+          gameMessage.textContent = t('msgCorrectBattle');
+        } else {
+          gameMessage.textContent = t('msgWrongBattle');
+        }
+
+        setTimeout(function () {
+          roomRef.transaction(function (room) {
+            if (!room) return room;
+            if (!room.question || room.question.id !== q.id) return room;
+            if (!room.players) return room;
+            const me = room.players[playerKey];
+            if (!me) return room;
+
+            if (me.answeredId === q.id) return room;
+            if (!me.alive) return room;
+
+            if (isCorrect) {
+              me.score = (me.score || 0) + 1;
+            } else {
+              me.alive = false;
+            }
+            me.answeredId = q.id;
+
+            const ids = Object.keys(room.players);
+            const aliveIds = ids.filter(id => room.players[id].alive);
+            const aliveCount = aliveIds.length;
+
+            if (aliveCount <= 1) {
+              room.state = 'finished';
+              room.winnerId = aliveIds[0] || null;
+              return room;
+            }
+
+            const allAliveAnswered = aliveIds.every(id => room.players[id].answeredId === q.id);
+            if (allAliveAnswered) {
+              room.question = chooseRandomQuestion();
+            }
+
+            return room;
+          });
+        }, 900);
+      }
+    }
+
+    async function leaveRoom() {
+      if (!roomRef) return;
+
+      try {
+        if (gameMode === 'duel' && playerNumber) {
+          await roomRef.child('players/p' + playerNumber).set({ joined: false });
+          if (playerNumber === 1) {
+            await roomRef.remove();
+          }
+        } else if ((gameMode === 'battle' || gameMode === 'battlePublic') && playerKey) {
+          await roomRef.child('players/' + playerKey).update({ joined: false, alive: false });
+        }
+
+        gameMessage.textContent = t('leftRoom');
+      } catch (e) {
+        console.error(e);
+      }
+
+      clearSharedTimer();
+      roomRef.off();
+      roomRef = null;
+      roomCode = null;
+      playerNumber = null;
+      playerKey = null;
+      currentQuestionId = null;
+      lastKnownMeAlive = true;
+      gameContainer.style.display = 'none';
+      roomCodeLabel.textContent = '';
+      createStatus.textContent = '';
+      joinStatus.textContent = '';
+      publicBattleStatus.textContent = '';
+    }
+
+    // === EVENTI UI ===
+    createRoomBtn.addEventListener('click', function () {
+      createRoom();
+    });
+
+    joinRoomBtn.addEventListener('click', function () {
+      if (roomRef) return;
+      joinRoom();
+    });
+
+    publicBattleBtn.addEventListener('click', function () {
+      joinPublicBattle();
+    });
+
+    leaveBtn.addEventListener('click', function () {
+      leaveRoom();
+    });
+
+    languageSelect.addEventListener('change', function () {
+      currentLang = languageSelect.value;
+      applyTranslations();
+    });
+
+    modePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const mode = pill.getAttribute('data-mode');
+        modePills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const input = pill.querySelector('input[name="mode"]');
+        if (input) input.checked = true;
+      });
+    });
+
+    // inizializza testi
+    applyTranslations();
+  </script>
+</body>
+</html>
